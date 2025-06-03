@@ -14,7 +14,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         exit;
     } elseif (!empty($email) && !empty($password)) {
         $_SESSION['user'] = $email;
-        $_SESSION['is_admin'] = false;
         header('Location: index.php');
         exit;
     } else {
@@ -257,7 +256,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   });
 
   overlay.addEventListener("click", hide_menu);
-  document.getElementById("close-menu").addEventListener("click", hide_menu);
+ overlay.addEventListener("click", hide_menu);
+document.getElementById("close-menu").addEventListener("click", hide_menu);
+
 </script>
 
 </body>
