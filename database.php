@@ -54,61 +54,41 @@ function createTables() {
         $pdo->exec("CREATE TABLE IF NOT EXISTS orders (
             id INT AUTO_INCREMENT PRIMARY KEY,
             user_id INT,
-            customer_name VARCHAR(100) NOT NULL,
-            customer_email VARCHAR(100) NOT NULL,
-            customer_phone VARCHAR(20) NOT NULL,
-            customer_address TEXT NOT NULL,
+            order_number VARCHAR(50) UNIQUE NOT NULL,
             total_amount DECIMAL(10,2) NOT NULL,
-            products TEXT,
-            status ENUM('pending', 'confirmed', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
-            order_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-            FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL
+            status ENUM('pending', 'processing', 'shipped', 'delivered', 'cancelled') DEFAULT 'pending',
+            shipping_address TEXT,
+            payment_method VARCHAR(50),
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            FOREIGN KEY (user_id) REFERENCES users(id)
         )");
 
         // Order items table
         $pdo->exec("CREATE TABLE IF NOT EXISTS order_items (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            order_id INT NOT NULL,
-            product_id INT NOT NULL,
-            product_name VARCHAR(255) NOT NULL,
+            order_id INT,
+            product_id INT,
             quantity INT NOT NULL,
             price DECIMAL(10,2) NOT NULL,
-            FOREIGN KEY (order_id) REFERENCES orders(id) ON DELETE CASCADE,
-            FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+            FOREIGN KEY (order_id) REFERENCES orders(id),
+            FOREIGN KEY (product_id) REFERENCES products(id)
         )");
 
         // Insert default admin if not exists
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM admins WHERE email = 'admin@merena.com'");
-        $stmt->execute();
+        $stmt = $pdo->prepare("SELECT COUNT(*) FROM admins WHERE email = ?");
+        $stmt->execute(['admin@merena.com']);
         if ($stmt->fetchColumn() == 0) {
             $adminPassword = password_hash('admin123', PASSWORD_DEFAULT);
             $pdo->prepare("INSERT INTO admins (name, email, password) VALUES (?, ?, ?)")
                 ->execute(['Admin', 'admin@merena.com', $adminPassword]);
         }
 
-        // Insert sample products if table is empty
-        $stmt = $pdo->prepare("SELECT COUNT(*) FROM products");
-        $stmt->execute();
-        if ($stmt->fetchColumn() == 0) {
-            $products = [
-                ['Elegant Dress', 'Beautiful elegant dress perfect for special occasions', 4500.00, 'dress1.jpg', 'Dresses', 25],
-                ['Casual T-Shirt', 'Comfortable cotton t-shirt for everyday wear', 1200.00, 'tshirt1.jpg', 'Tops', 50],
-                ['Designer Jeans', 'Premium quality denim jeans with modern fit', 3200.00, 'jeans1.jpg', 'Bottoms', 30],
-                ['Summer Blouse', 'Light and airy blouse perfect for summer', 2100.00, 'blouse1.jpg', 'Tops', 40],
-                ['Evening Gown', 'Stunning evening gown for formal events', 8500.00, 'gown1.jpg', 'Dresses', 15]
-            ];
-            
-            $stmt = $pdo->prepare("INSERT INTO products (name, description, price, image, category, stock) VALUES (?, ?, ?, ?, ?, ?)");
-            foreach ($products as $product) {
-                $stmt->execute($product);
-            }
-        }
-
+        echo "Database tables created successfully!";
     } catch(PDOException $e) {
         echo "Error creating tables: " . $e->getMessage();
     }
 }
 
-// Uncomment to create tables (run once)
+// Uncomment to create tables
 // createTables();
 ?>
