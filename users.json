@@ -1,0 +1,9 @@
+[
+    {
+        "id": "admin001",
+        "email": "admin@merena.com",
+        "password": "$2y$10$qTMMeb9ah6QcA3Bzq\/qlSeIvuPJ4A0RRBoM.xg3Lt5HXB.4Dxiyxa",
+        "role": "admin",
+        "created_at": "2025-06-04 00:42:50"
+    }
+]
